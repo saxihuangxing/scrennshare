@@ -1,0 +1,54 @@
+         # Handle desktop sharing tunneling.  Forwards
+         # requests to Red5 on port 5080.
+
+        location /screenshare/postUser {
+            proxy_pass         http://127.0.0.1:8889;
+            proxy_redirect     / /screenshare/;
+            proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+            client_max_body_size       10m;
+            client_body_buffer_size    128k;
+            proxy_connect_timeout      90;
+            proxy_send_timeout         90;
+            proxy_read_timeout         90;
+            proxy_buffer_size          4k;
+            proxy_buffers              4 32k;
+            proxy_busy_buffers_size    64k;
+            proxy_temp_file_write_size 64k;
+            auth_request /bigbluebutton/connection/checkAuthorization;
+            auth_request_set $auth_status $upstream_status;
+        }
+
+      location /screenshare/delUser {
+                proxy_pass         http://127.0.0.1:8889;
+                proxy_redirect     / /screenshare/;
+                proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+                client_max_body_size       10m;
+                client_body_buffer_size    128k;
+                proxy_connect_timeout      90;
+                proxy_send_timeout         90;
+                proxy_read_timeout         90;
+                proxy_buffer_size          4k;
+                proxy_buffers              4 32k;
+                proxy_busy_buffers_size    64k;
+                proxy_temp_file_write_size 64k;
+                auth_request /bigbluebutton/connection/checkAuthorization;
+                auth_request_set $auth_status $upstream_status;
+            }
+
+
+       location /screenshare {
+           proxy_pass         http://127.0.0.1:8889;
+           proxy_redirect     / /screenshare/;
+           proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+           client_max_body_size       10m;
+           client_body_buffer_size    128k;
+           proxy_connect_timeout      90;
+           proxy_send_timeout         90;
+           proxy_read_timeout         90;
+           proxy_buffer_size          4k;
+           proxy_buffers              4 32k;
+           proxy_busy_buffers_size    64k;
+           proxy_temp_file_write_size 64k;
+           include    fastcgi_params;
+       }
+

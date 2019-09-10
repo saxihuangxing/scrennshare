@@ -1,0 +1,1 @@
+sudo docker run --network="host"  -t -i screensahre:v1

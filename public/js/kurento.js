@@ -29,17 +29,17 @@ const stunserver = [{"urls":"stun:stun.freeswitch.org"}];
 /*const voiceBridge = "76256";
 const userId = "w_lhovd7galrua";
 const internalMeetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1567558733988";
-const sesionToken = "fmx86cvgafy2pynj";*/
+const sessionToken = "fmx86cvgafy2pynj";*/
 console.log("hxtest voiceBridge=" + voiceBridge);
 console.log("hxtest userId=" + userId);
 console.log("hxtest internalMeetingId=" + internalMeetingId);
-console.log("hxtest sesionToken=" + sesionToken);
+console.log("hxtest sessionToken=" + sessionToken);
 
 const getUserId = () => userId;//Auth.userID;
 
 const getMeetingId = () => internalMeetingId;//Auth.meetingID;
 
-const getSessionToken = () => sesionToken;// Auth.sessionToken;
+const getSessionToken = () => sessionToken;// Auth.sessionToken;
 
 const getConferenceBridge = () => voiceBridge;
 
