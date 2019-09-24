@@ -1,5 +1,5 @@
 const redis = require("redis");
-var debug = require('debug')('test:server');
+var debug = require('debug')('rimp:server');
 
 let channels = {
     mainChannel: 'from-akka-apps-redis-channel',
@@ -14,6 +14,7 @@ let channels = {
 module.exports = class Hook {
 
     constructor() {
+        this.events = [];
         const options = {
             host : "127.0.0.1",
             port : "6379"
@@ -31,21 +32,24 @@ module.exports = class Hook {
     }
 
 
-    start(callback) {
+    start() {
         this.redisClient.on("pmessage", (pattern, channel, message) => {
-
+            debug(message);
             let raw;
             try {
                 raw = JSON.parse(message);
-                switch (raw.envelope.name) {
-                    case "MeetingEndedEvtMsg":
-                        if(typeof callback === "function"){
-                            callback(raw.core.body.meetingId);
-                        }
-                        break;
-                    default:
-                        break;
+                let event = {};
+                event.type = raw.core.header.name;
+                if(event.type == "DoLatencyTracerMsg"){
+                    return;
                 }
+                event.time = Date.now();
+                event.meetId = raw.core.header.meetingId;
+                if(raw.core.header.userId != undefined){
+                    event.userId = raw.core.header.userId;
+                }
+
+                this.events.push(event);
 
             } catch (e) {
                 debug("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e.message);
@@ -53,6 +57,16 @@ module.exports = class Hook {
         });
 
     };
+
+    getEventBymeetId(meetId){
+       let newEvents = [];
+       this.events.forEach(event=>{
+           if(event.meetId == meetId){
+               newEvents.push(event);
+           }
+       });
+       return newEvents;
+    }
 
 
 };

@@ -47,7 +47,7 @@ var url = require('url');
 
 var express = require('express');
 var app = require('./app');
-var debug = require('debug')('test:server');
+var debug = require('debug')('rimp:server');
 var port = normalizePort(process.env.PORT || '8889');
 app.set('port', port);
 

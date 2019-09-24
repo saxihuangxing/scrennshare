@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var url = require('url');
-var debug = require('debug')('test:server');
+var debug = require('debug')('rimp:server');
 
 /* GET users listing. */
 router.get('/', function(request, response, next) {
