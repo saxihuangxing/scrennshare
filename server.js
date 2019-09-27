@@ -45,7 +45,6 @@ var url = require('url');
 }).listen(8889);*/
 
 
-var express = require('express');
 var app = require('./app');
 var debug = require('debug')('rimp:server');
 var port = normalizePort(process.env.PORT || '8889');
@@ -56,6 +55,9 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+var sysLog = require("./routes/LogManage/LogServer");
+sysLog.startLogModule(server);
 
 function normalizePort(val) {
     var port = parseInt(val, 10);

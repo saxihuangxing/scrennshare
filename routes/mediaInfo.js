@@ -7,8 +7,21 @@ var debug = require('debug')('rimp:server');
 let  mediaInfos = [];
 /* GET users listing. */
 router.post('/report', function(req, res, next) {
-
-        let mediaInfo = req.query;
+      debug(`mediaInfos report voicebridge:${ req.body.voiceBridge}`);
+        let mediaInfo = req.body;
+        for(let i = 0;i<mediaInfos.length;i++ ){
+            if(mediaInfos[i].voiceBridge === mediaInfo.voiceBridge
+                && mediaInfos[i].userId === mediaInfo.userId
+                && mediaInfos[i].mediaId === mediaInfo.mediaId
+                && mediaInfos[i].mediaType === mediaInfo.mediaType
+            ){
+                mediaInfos[i].statsMap.push(mediaInfo.statsMap);
+                debug(`mediaInfos report update  mediaInfo map for user ${mediaInfos[i].userId}`);
+                return;
+            }
+        }
+        mediaInfo.statsMap = [mediaInfo.statsMap];
+        debug("mediaInfos report push new mediaInfo");
        mediaInfos.push(mediaInfo);
        res.writeHead(200, {
             'Content-Type': 'text/html',
@@ -19,13 +32,29 @@ router.post('/report', function(req, res, next) {
     });
 
 router.get('/getMediaInfo', function(req, res, next) {
-
-    let voidBrigge = req.query.voiceBridge;
+    const search = {};
+    debug(`mediaInfos getMediaInfo voicebridge:${ req.query.voiceBridge}`);
+    search.voidBridge = req.query.voiceBridge;
+    search.userId = req.query.userId;
+    search.timeRange = {"start":"","end":""};
+    search.share = true;
     const newMediaInfos = [];
     mediaInfos.forEach(mediaInfo =>{
-        if(mediaInfo.voiceBridge == voidBrigge){
-            newMediaInfos.push(mediaInfo);
+        if(typeof(search.voidBridge) == "string") {
+            if (mediaInfo.voiceBridge != search.voidBridge) {
+                return;
+            }
         }
+
+        if(typeof(search.userId) == "string"){
+            if (mediaInfo.userId != search.userId) {
+                return;
+            }
+        }
+        if(mediaInfo.statsMap.length > 1){
+            mediaInfo.statsMap = [mediaInfo.statsMap[mediaInfo.statsMap.length-1]];
+        }
+        newMediaInfos.push(mediaInfo);
     });
     res.write(JSON.stringify(newMediaInfos));
     //  发送响应数据

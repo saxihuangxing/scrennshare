@@ -5,6 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const roomListRouter = require('./routes/roomList');
 const eventListRouter = require('./routes/RimpEvent/eventList');
+const mediaInfo = require('./routes/mediaInfo');
+const diviceInfo = require('./routes/diviceInfo');
 var debug = require('debug')('rimp:server');
 var app = express();
 
@@ -20,7 +22,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/eventList',eventListRouter);
 app.use('/roomList',roomListRouter);
-app.use('/medaiInfo',roomListRouter);
+app.use('/mediaInfo',mediaInfo);
+app.use('/DeviceInfo',diviceInfo);
 
 
 // catch 404 and forward to error handler
