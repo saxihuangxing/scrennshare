@@ -13,4 +13,4 @@ RUN npm install \
 EXPOSE 8889
 EXPOSE 6379
 
-CMD ["node", "server.js"]
+CMD ["node", "rimpMangeServerngeServer.js"]

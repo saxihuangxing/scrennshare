@@ -1,17 +1,20 @@
 
 var Tail = require('always-tail');
 var fs = require('fs');
-const filename = '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log.2019-09-26';
+//const filename = '/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log.2019-09-27';
 //const filename = '/home/jackyang/RimpManage/routes/LogManage/log.txt';
 
 //if (!fs.existsSync(filename)) fs.writeFileSync(filename, "");
-function startTail(callback)
+var sysLog = require("./LogServer");
+let callback = sysLog.sendNewLog;
+
+function startTail(filename,type)
 {
     var tail = new Tail(filename, '\n');
-
+    console.log("start Tail " + filename);
     tail.on('line', function (data) {
         console.log("got line:", data);
-        callback(data);
+        callback(type+'-message-start-'+data);
     });
 
 
@@ -20,7 +23,9 @@ function startTail(callback)
     });
 
     tail.watch();
+    return tail;
+
 }
 
-const monitor = {"start":startTail};
+const monitor = {"startTail":startTail};
 module.exports = monitor;

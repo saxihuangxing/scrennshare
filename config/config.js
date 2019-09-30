@@ -18,7 +18,7 @@ config.bbb.sharedSecret = "sharedSecret";
 config.bbb.apiPath = "/bigbluebutton/api";
 config.bbb.auth2_0 = false;
 config.server = {};
-config.server.port = 3005;
+config.server.port = 8890;
 config.hooks = {};
 config.hooks.channels = {
     mainChannel: 'from-akka-apps-redis-channel',
@@ -64,6 +64,18 @@ config.redis.keys.userMap = id => `bigbluebutton:webhooks:userMap:${id}`;
 
 config.api = {};
 config.api.responses = {};
-
+config.processCommand = {
+    "apps":"bbb-apps-akka",
+    "web":"bbb-web",
+    "sfu_process":"process.js",
+    "sfu_video":"VideoProcess.js",
+    "sfu_screenshare":"ScreenshareProcess",
+    "html5":"/usr/share/node-v8.15.1-linux-x64/bin/node main.js",
+    "RMD":"kurento-media-server",
+    "nginx":"/usr/sbin/nginx",
+    "mongod":"/usr/bin/mongod",
+    "redis":"/usr/bin/redis",
+    "rimpManage":"rimpMangeServer",
+}
 
 module.exports =  config

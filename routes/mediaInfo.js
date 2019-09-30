@@ -15,6 +15,7 @@ router.post('/report', function(req, res, next) {
                 && mediaInfos[i].mediaId === mediaInfo.mediaId
                 && mediaInfos[i].mediaType === mediaInfo.mediaType
             ){
+                mediaInfos[i].time = mediaInfo.time;
                 mediaInfos[i].statsMap.push(mediaInfo.statsMap);
                 debug(`mediaInfos report update  mediaInfo map for user ${mediaInfos[i].userId}`);
                 return;
@@ -53,6 +54,10 @@ router.get('/getMediaInfo', function(req, res, next) {
         }
         if(mediaInfo.statsMap.length > 1){
             mediaInfo.statsMap = [mediaInfo.statsMap[mediaInfo.statsMap.length-1]];
+        }
+
+        if((Date.now() - mediaInfo.time) > 5*1000 ){ //over 3 seconds don't refresh,maybe the media was dead.
+            return;
         }
         newMediaInfos.push(mediaInfo);
     });

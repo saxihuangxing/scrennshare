@@ -1,11 +1,11 @@
 {
-  "name": "scrennshare",
+  "name": "RimpManage",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "rimpMangeServer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --inspect=0.0.0.0:9229 server.js "
+    "start": "node --inspect=0.0.0.0:9229 rimpMangeServer.js "
   },
   "author": "",
   "license": "ISC",
@@ -14,9 +14,11 @@
     "cookie-parser": "~1.4.4",
     "crypto": "^1.0.1",
     "debug": "~2.6.9",
-    "express": "~4.16.1",
+    "express": "~4.16.4",
+    "express-session": "^1.16.2",
     "fast-xml-parser": "^3.12.20",
     "hashmap": "^2.3.0",
+    "mongodb": "^3.3.2",
     "morgan": "~1.9.1",
     "os-utils": "^0.0.14",
     "pug": "2.0.0-beta11",
