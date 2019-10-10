@@ -1,3 +1,4 @@
+const mediaRouter = require("../mediaInfo");
 let clients = {};
 let clientCount = 0;
 
@@ -13,6 +14,7 @@ class sysLogClass {
             clients[socket.id] = socket;
             clientCount++;
             console.log("clientCount = " + clientCount);
+            socket.emit("connected","start");
             socket.on('disconnect', function () {
                 for (var key in clients) {
                     if (key == socket.id) {
@@ -22,20 +24,40 @@ class sysLogClass {
                     }
                 }
             });
+            socket.on('media_report', function (from, msg) {
+              //  console.log('MSG', from, ' saying ', msg);
+               setTimeout(()=>mediaRouter.updateMediaInfo(msg),0);
+            });
+            socket.subscribers = [];
+            socket.on('subscribe',(type)=>{
+                    console.log("socket receive subscribe " + type);
+                     socket.subscribers.push(type);
+                }
+            )
+
         });
     }
 
 
     sendNewLog(str) {
         for (let key in clients) {
-            clients[key].emit('newLog', str);
-            console.log("send new log " + str);
+            let socket = clients[key];
+            if(socket.subscribers.indexOf("newLog") > -1)
+            {
+                socket.emit('newLog', str);
+                //console.log("send new log " + str);
+            }
         }
     }
 
     sendDeviceInfo(str) {
         for (let key in clients) {
-            clients[key].emit('deviceInfo', str);
+            let socket = clients[key];
+            if(socket.subscribers.indexOf("deviceInfo") > -1)
+            {
+                socket.emit('deviceInfo', str);
+                //console.log("send new deviceInfo" + str);
+            }
         }
     }
 }

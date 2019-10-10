@@ -19,6 +19,9 @@ config.bbb.apiPath = "/bigbluebutton/api";
 config.bbb.auth2_0 = false;
 config.server = {};
 config.server.port = 8890;
+config.dbUrl = "mongodb://127.0.0.1:8889/";
+config.roomDbName = "roomInfo";
+config.mediaDbName = "mediaInfo";
 config.hooks = {};
 config.hooks.channels = {
     mainChannel: 'from-akka-apps-redis-channel',

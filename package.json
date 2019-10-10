@@ -5,7 +5,7 @@
   "main": "rimpMangeServer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --inspect=0.0.0.0:9229 rimpMangeServer.js "
+    "start": "/usr/bin/mongod  --bind_ip 127.0.0.1 --port 8889 --dbpath $(pwd)/db --oplogSize 8 --noauth & node --inspect=0.0.0.0:9229 rimpMangeServer.js "
   },
   "author": "",
   "license": "ISC",

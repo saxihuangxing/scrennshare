@@ -1,21 +1,50 @@
 var express = require('express');
 var router = express.Router();
 var debug = require('debug')('rimp:server');
+var config =require("../../config/config");
+const MongoClient = require("mongodb").MongoClient;
+const dbUrl = config.dbUrl;
 
+MongoClient.connect(dbUrl,function (err,db) {
+    if (err) {
+        console.log(err);
+        return;
+    }
+    var dbase = db.db("rimp");
+    dbase.listCollections({name: "users"})
+        .next(function(err, collinfo) {
+            if (!collinfo) {
+                dbase.createCollection("users",function (err,res) {
+                    if (err) throw err;
+                    var users = dbase.collection('users');
+                    var data = {name: 'admin',pwd: '90f8009728ad23d7f97bff29162c5bb8'};
+                    users.insertOne(data,function(error, result){
+                        if(error)
+                        {
+                            console.log('Error:'+ error);
+                        }else{
+                            console.log(result.result.n);
+                        }
+                        db.close();
+                    });
+                });
+            }
+        });
+
+
+});
 
 router.post('/doLogin', function(req, res, next) {
     //利用bodyParser 获取表单提交的数据
     const param = req.body;
-    debug("params=" +JSON.stringify(param));
     const pas = param.password;//md5(param.password);
-    const MongoClient = require("mongodb").MongoClient;
-    const dbUrl = "mongodb://127.0.1.1:27017/";
+    debug("params=" +JSON.stringify(param));
     MongoClient.connect(dbUrl,function (err,db) {
         if(err){
             console.log(err);
             return;
         }
-        var dbo = db.db("rimpManage");
+        var dbo = db.db("rimp");
         const list = [];
         const result = dbo.collection("users").find({"name":param.username,"pwd":pas});
         result.toArray(function (err,data) {

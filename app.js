@@ -13,6 +13,10 @@ const user = require('./routes/user/login');
 var debug = require('debug')('rimp:server');
 var app = express();
 
+app.use(function (req, res, next) {
+    req.url = req.url.replace("/rimpmanage/","/");
+    next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,20 +26,19 @@ app.use(session({
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: true,
-    cookie: {maxAge: 1000 * 60 * 30},
+    cookie: {maxAge: 1000 * 60 * 60 },
     rolling: true
 }));
 
-app.use(function (req, res, next) {
-    req.url = req.url.replace("/rimpmanage/","/");
-    next();
-});
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function (req, res, next) {
     const currPath = req.url;
-    if (currPath == "/user/login" || currPath == "/user/doLogin") {
+    if (currPath == "/user/doLogin"  || currPath == "/user/logout" ||
+        currPath == "/mediaInfo/report" ||
+        currPath.indexOf("/socket.io/socket.io.js") !== -1) {
         next();
     } else {
         if (req.session.userInfo && req.session.userInfo.name && req.session.userInfo.name != "") {
@@ -70,7 +73,7 @@ app.use(function (req, res, next) {
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+/*app.use(function (err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -78,7 +81,7 @@ app.use(function (err, req, res, next) {
     // render the error page
     res.status(err.status || 500);
     res.render('error');
-});
+});*/
 
 
 module.exports = app;

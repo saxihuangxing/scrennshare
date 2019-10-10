@@ -1,6 +1,17 @@
          # Handle desktop sharing tunneling.  Forwards
          # requests to Red5 on port 5080.
 
+        location ^~/socket.io {
+           proxy_pass http://127.0.0.1:8890;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection "Upgrade";
+           proxy_read_timeout 6h;
+           proxy_send_timeout 6h;
+           client_body_timeout 6h;
+           send_timeout 6h;
+       }
+
        location /rimpmanage {
            proxy_pass         http://127.0.0.1:8890;
            proxy_redirect      / /rimpmanage/;
@@ -16,4 +27,3 @@
            proxy_temp_file_write_size 64k;
            include    fastcgi_params;
        }
-
