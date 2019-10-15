@@ -8,6 +8,7 @@ var CommonUtil = require("../utils/commonUtil");
 var dbManage = require("../dbmange/manage");
 let  mediaInfos = [];
 var roomList = require('./roomList');
+const mediaStatusDb = require("../dbmange/operator")('mediaStatus');
 /* GET users listing. */
 
 const updateMediaInfo = (mediaInfo) => {
@@ -42,9 +43,10 @@ const updateMediaInfo = (mediaInfo) => {
             && mediaInfos[i].mediaId === mediaInfo.mediaId
             && mediaInfos[i].mediaType === mediaInfo.mediaType
         ){
-            mediaInfos[i].time = mediaInfo.time;
+            mediaInfos[i] = mediaInfo;
+          //  mediaInfos[i].time = mediaInfo.time;
             //  mediaInfos[i].statsMap.push(mediaInfo.statsMap);
-            mediaInfos[i].statsMap = mediaInfo.statsMap;
+         //   mediaInfos[i].statsMap = mediaInfo.statsMap;
             debug(`mediaInfos report update  mediaInfo map for user ${mediaInfos[i].userId}`);
             return;
         }
@@ -56,6 +58,48 @@ const updateMediaInfo = (mediaInfo) => {
 }
 
 router.updateMediaInfo = updateMediaInfo;
+
+router.updateStatus  = async (event) =>{
+    if(typeof event === 'string') {
+        event = JSON.parse(event);
+    }
+   const {status,mediaId,roomId,time,shared} = event;
+    let obj = {mediaId,roomId,shared};
+   if(status === "start"){
+       obj.info = {startTime:time,status:"started"};
+       mediaStatusDb.add(obj);
+   }else if(status === "end"){
+       let res =  await  mediaStatusDb.findOnePromise(obj);
+       if(res === undefined){
+           console.err("updateStatus err: res" + res );
+           return;
+       }
+       res.info.status = "end";
+       res.info.endTime = time;
+       res.save();
+   }
+
+    // mediaStatusDb.add(JSON.parse(event));
+}
+
+let maxUse = {
+    "size":0,
+}
+
+router.maxUse = maxUse;
+
+
+router.updateCount  = async (event) =>{
+    if(typeof event === 'string') {
+        event = JSON.parse(event);
+    }
+    const {size,time} = event;
+    if(size > maxUse.size){
+        maxUse.size = size;
+    }
+    // mediaStatusDb.add(JSON.parse(event));
+}
+
 
 router.post('/report', function(req, res, next) {
       debug(`mediaInfos report voicebridge:${ req.body.voiceBridge}`);
@@ -93,7 +137,7 @@ router.post('/getMediaInfo', function(req, res, next) {
 
                 mediaInfos.forEach(mediaInfo =>{
                     if(typeof(search.voiceBridge) == "string") {
-                        if (mediaInfo.voiceBridge != search.voidBridge) {
+                        if (mediaInfo.voiceBridge != search.voiceBridge) {
                             return;
                         }
                     }
@@ -106,7 +150,8 @@ router.post('/getMediaInfo', function(req, res, next) {
          /*           if(mediaInfo.statsMap.length > 1){
                         mediaInfo.statsMap = [mediaInfo.statsMap[mediaInfo.statsMap.length-1]];
                     }*/
-
+                    let now = Date.now();
+                    console.log("hxtest Date.now() = " + Date.now() + " mediaInfo.time = " + mediaInfo.time+ " dis="+(Date.now() - mediaInfo.time));
                     if((Date.now() - mediaInfo.time) > 3*1000 ){ //over 3 seconds don't refresh,maybe the media was dead.
                         return;
                     }

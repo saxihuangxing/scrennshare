@@ -1,6 +1,6 @@
 const redis = require("redis");
 var debug = require('debug')('rimp:server');
-
+const db = require("../../dbmange/operator")('event');
 let channels = {
     mainChannel: 'from-akka-apps-redis-channel',
     rapChannel: 'from-bbb-web-redis-channel',
@@ -40,7 +40,7 @@ module.exports = class Hook {
                 raw = JSON.parse(message);
                 let event = {};
                 event.type = raw.core.header.name;
-                if(event.type == "DoLatencyTracerMsg"){
+                if(event.type == "DoLatencyTracerMsg" || event.type == "CheckAlivePongSysMsg"){
                     return;
                 }
                 event.time = Date.now();
@@ -48,8 +48,8 @@ module.exports = class Hook {
                 if(raw.core.header.userId != undefined){
                     event.userId = raw.core.header.userId;
                 }
-
-                this.events.push(event);
+                db.add(event);
+              //  this.events.push(event);
 
             } catch (e) {
                 debug("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e.message);
@@ -58,14 +58,15 @@ module.exports = class Hook {
 
     };
 
-    getEventBymeetId(meetId){
-       let newEvents = [];
+    getEventBymeetId(meetId,callback){
+/*       let newEvents;
        this.events.forEach(event=>{
            if(event.meetId == meetId){
                newEvents.push(event);
            }
        });
-       return newEvents;
+        newEvents = */
+       db.find({meetId},null,callback);
     }
 
 

@@ -28,12 +28,22 @@ class sysLogClass {
               //  console.log('MSG', from, ' saying ', msg);
                setTimeout(()=>mediaRouter.updateMediaInfo(msg),0);
             });
+            socket.on('media_change', function (from, msg) {
+                 // console.log('media_change', from, ' saying ', msg);
+                 setTimeout(()=>mediaRouter.updateStatus(msg),0);
+            });
+            socket.on('media_count', function (from, msg) {
+               // console.log('media_count', from, ' saying ', msg);
+                setTimeout(()=>mediaRouter.updateCount(msg),0);
+            });
             socket.subscribers = [];
             socket.on('subscribe',(type)=>{
                     console.log("socket receive subscribe " + type);
                      socket.subscribers.push(type);
                 }
             )
+
+
 
         });
     }

@@ -3,6 +3,10 @@ const serverIp = "192.168.1.124";
 const app = "/bigbluebutton/api/";
 const Secret = "330a8b08c3b4c61533e1d0c5ce1ac88f";
 
+const oneSecondMs = 1000;
+const oneMinuteMs = 1000*60;
+const oneHourMs = 1000*60*60;
+const oneDayMs = 1000*60*60*24;
 
 const config  = {
     serverUrl:httpProtocal+serverIp+app,
@@ -11,6 +15,18 @@ const config  = {
     api_getMeetings : "getMeetings?"
 };
 
+config.event = {
+   "createdMeeting" :"MeetingCreatedEvtMsg",
+    "sharedVideo":"UserBroadcastCamStartedEvtMsg",
+}
+
+config.dbSaveTime = {
+    "eventDb":oneDayMs*7,
+}
+
+config.dbSaveInterval = {
+    "maxDb":oneSecondMs*20,
+}
 
 // BigBlueButton configs
 config.bbb = {};
@@ -79,6 +95,10 @@ config.processCommand = {
     "mongod":"/usr/bin/mongod",
     "redis":"/usr/bin/redis",
     "rimpManage":"rimpMangeServer",
+}
+
+config.processEevnt = {
+    "restart":"restart",
 }
 
 module.exports =  config

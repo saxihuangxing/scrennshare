@@ -19,6 +19,7 @@
     "fast-xml-parser": "^3.12.20",
     "hashmap": "^2.3.0",
     "mongodb": "^3.3.2",
+    "mongoose": "^5.7.4",
     "morgan": "~1.9.1",
     "os-utils": "^0.0.14",
     "pug": "2.0.0-beta11",

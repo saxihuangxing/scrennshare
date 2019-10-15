@@ -4,7 +4,7 @@ var express = require('express');
 const checksum = require('../utils/encrypt');
 const request = require("request");;
 const fxp = require("fast-xml-parser");
-
+const CommonUtil = require("../utils/commonUtil");
 var router = express.Router();
 var debug = require('debug')('rimp:server');
 
@@ -29,6 +29,12 @@ router.get('/', function(req, res, next) {
     });
 });
 
+let maxUse = {
+    "room":0,
+    "user":0,
+}
+
+router.maxUse = maxUse;
 
 const saveMeetingsInfo = (json)=>{
     data = json.response;
@@ -38,6 +44,17 @@ const saveMeetingsInfo = (json)=>{
                 router.roomsInfo = [data.meetings.meeting];
             }else{
                 router.roomsInfo = meetingsData;
+            }
+            if(router.roomsInfo.length > maxUse.room){
+                maxUse.room = router.roomsInfo.length;
+            }
+            let allUser = 0;
+            router.roomsInfo.forEach(room =>{
+                let users = CommonUtil.tranObjToArr(room.attendees.attendee);
+                allUser += users.length;
+            })
+            if(allUser > maxUse.user){
+                maxUse.user = allUser;
             }
         }
     } else {

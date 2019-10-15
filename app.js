@@ -6,8 +6,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const roomListRouter = require('./routes/roomList');
 const eventListRouter = require('./routes/RimpEvent/eventList');
+const countInfoRouter = require('./routes/CountInfo/countInfo');
 const mediaInfo = require('./routes/mediaInfo');
-const diviceInfo = require('./routes/diviceInfo');
+const diviceInfo = require('./routes/deviceInfo');
 const logInfo = require('./routes/LogManage/logRouter');
 const user = require('./routes/user/login');
 var debug = require('debug')('rimp:server');
@@ -34,7 +35,7 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(function (req, res, next) {
+/*app.use(function (req, res, next) {
     const currPath = req.url;
     if (currPath == "/user/doLogin"  || currPath == "/user/logout" ||
         currPath == "/mediaInfo/report" ||
@@ -51,7 +52,7 @@ app.use(function (req, res, next) {
             res.end(`{"code":"403","reson":"Not authorized."}`);
         }
     }
-});
+});*/
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -60,6 +61,7 @@ app.use(cookieParser());
 
 
 app.use('/eventList', eventListRouter);
+app.use('/countInfo', countInfoRouter);
 app.use('/roomList', roomListRouter);
 app.use('/mediaInfo', mediaInfo);
 app.use('/DeviceInfo', diviceInfo);

@@ -17,9 +17,16 @@ try {
 /* GET users listing. */
 router.get('/', function(req, res, next) {
     let meetId = req.query.meetId;
-    const event =  hook.getEventBymeetId(meetId);
-    res.write(JSON.stringify(event));
-    res.end();
+    hook.getEventBymeetId(meetId,(error,event)=>{
+        if(error){
+            console.log("getEventBymeetId" + error.toString());
+            res.write(JSON.stringify([]));
+        }else {
+            res.write(JSON.stringify(event));
+        }
+         res.end();
+    });
+
 });
 
 module.exports = router;

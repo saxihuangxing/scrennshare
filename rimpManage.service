@@ -1,0 +1,16 @@
+[Unit]
+Description=BigBlueButton RIMP
+
+[Service]
+WorkingDirectory=/usr/local/bigbluebutton/rimpmanage/manage/
+#ExecStart=/usr/bin/node rimpMangeServer.js
+#ExecStartPre="/usr/bin/mongod  --bind_ip 127.0.0.1 --port 8889 --dbpath /usr/local/bigbluebutton/rimpmanage/manage/db&"
+ExecStart=/usr/bin/node rimpMangeServer.js
+Restart=always
+SyslogIdentifier=rimp-manage
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

@@ -13,7 +13,7 @@ function startTail(filename,type)
     var tail = new Tail(filename, '\n');
     console.log("start Tail " + filename);
     tail.on('line', function (data) {
-        console.log("got line:", data);
+       // console.log("got line:", data);
         callback(type+'-message-start-'+data);
     });
 

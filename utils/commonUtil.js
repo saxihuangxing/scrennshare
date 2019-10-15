@@ -13,6 +13,17 @@ commonUtils = {
         }
         return res;
     },
+
+    getMaxValueInObjArr: (objArr,key) =>{
+        if(objArr === null || objArr === undefined || objArr.constructor !== Array || objArr.length <= 0 || !(key in objArr[0])){
+            return -1;
+        }
+        let values = objArr.map((obj)=>{
+            return obj[key];
+        })
+        return Math.max(...values);
+    }
+
 }
 
 module.exports =  commonUtils;
