@@ -8,6 +8,7 @@ var CommonUtil = require("../utils/commonUtil");
 var dbManage = require("../dbmange/manage");
 let  mediaInfos = [];
 var roomList = require('./roomList');
+const deviceInfo = require('./deviceInfo');
 const mediaStatusDb = require("../dbmange/operator")('mediaStatus');
 /* GET users listing. */
 
@@ -88,7 +89,7 @@ let maxUse = {
 
 router.maxUse = maxUse;
 
-
+let hosts = null;
 router.updateCount  = async (event) =>{
     if(typeof event === 'string') {
         event = JSON.parse(event);
@@ -97,6 +98,12 @@ router.updateCount  = async (event) =>{
     if(size > maxUse.size){
         maxUse.size = size;
     }
+    hosts = event.hosts;
+    hosts.forEach(host=>{
+        host.videoLimit = event.videoLimit;
+        host.audioLimit = event.audioLimit;
+    })
+
     // mediaStatusDb.add(JSON.parse(event));
 }
 
@@ -210,6 +217,23 @@ router.post('/getMediaInfo', function(req, res, next) {
 
 
 
+router.post('/mediaServers', function(req, res, next) {
+    const search = req.body;
+    try{
+            let nhosts = [];
+            let adeviceInfo = require('./deviceInfo');
+           if(hosts != null){
+               nhosts = hosts.map((host)=>{
+                   return {hostname:adeviceInfo.getHostNameByIp(host.ip),ip:host.ip,video:host.video,audio:host.audio,"audioLimit":host.audioLimit,"videoLimit":host.videoLimit};
+               })
+           }
+            res.write(JSON.stringify(nhosts));
+            res.end();
+    }catch (e) {
+        res.write(e.toString());
+        res.end();
+    }
+});
 
 
 module.exports = router;

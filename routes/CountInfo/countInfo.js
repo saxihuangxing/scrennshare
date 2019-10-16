@@ -5,9 +5,10 @@ var debug = require('debug')('rimp:server');
 const eventDb = require("../../dbmange/operator")('event');
 const maxDb = require("../../dbmange/operator")('max');
 const mediaStatusDb = require("../../dbmange/operator")('mediaStatus');
+const processDb = require("../../dbmange/operator")('process');
 const config = require("../../config/config");
 const deviceInfo = require("../deviceInfo");
-const processCounts = deviceInfo.processCounts;
+const countApp = deviceInfo.countApp;
 
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
@@ -29,23 +30,74 @@ router.get('/', async function(req, res, next) {
             wholeTime += runTime;
         });
         count.wholeRuntime = parseInt(wholeTime/1000) + "秒";
-        var keys = Object.keys(processCounts);
         count.processRestart = {};
-         keys.forEach((key) =>{
-            count.processRestart[key] = processCounts[key].count;
+        countApp.forEach(async (app) =>{
+            count.processRestart[app] = await  processDb.count({name:app}); //processCounts[key].count;
         });
         count.maxUse = {};
+        count.maxUse.devices = [];
         let maxs = await maxDb.findPromise({});
 /*        if(maxs.length > 1) {
             maxs = maxs.map((max) => {
                 return max.model;
             });
         }*/
-        count.maxUse.cpu =  commonUtils.getMaxValueInObjArr(maxs,"cpu");
-        count.maxUse.memory=  commonUtils.getMaxValueInObjArr(maxs,"memory");
-        count.maxUse.room =  commonUtils.getMaxValueInObjArr(maxs,"room");
-        count.maxUse.user=  commonUtils.getMaxValueInObjArr(maxs,"user");
-        count.maxUse.media=  commonUtils.getMaxValueInObjArr(maxs,"media");
+       // let cpu =  commonUtils.getMaxValueInSubArrObj(maxs,"devices","cpu");
+      //  let memory=  commonUtils.getMaxValueInSubArrObj(maxs,"devices","memory");
+        let maxDevices = [];
+        let devices = [];
+        let maxRoom = 0,maxUser = 0,maxMedia = 0;
+        let maxRoomTime = 0,maxUserTime = 0,maxMediaTime = 0;
+
+        maxs.forEach((max)=>{
+            max.devices.forEach(device=>{
+                device.time = max.time;
+                devices.push(device);
+            })
+
+            if(max.room > maxRoom){
+                maxRoom = max.room;
+                maxRoomTime = max.time;
+            }
+
+            if(max.user > maxUser){
+                maxUser = max.user;
+                maxUserTime = max.time;
+            }
+
+            if(max.media > maxMedia){
+                maxMedia = max.media;
+                maxMediaTime = max.time;
+            }
+
+        })
+        devices.forEach((device)=>{
+            let i;
+            for(i = 0;i< maxDevices.length;i++){
+                if(maxDevices[i].hostname === device.hostname){
+                    if(maxDevices[i].cpu < device.cpu){
+                        maxDevices[i].cpu = device.cpu;
+                        maxDevices[i].cpuTime = device.time;
+                    }
+                    if(maxDevices[i].memory < device.memory){
+                        maxDevices[i].memory = device.memory;
+                        maxDevices[i].memoryTime = device.time;
+                    }
+                    break;
+                }
+            }
+            if(i === maxDevices.length){
+                maxDevices.push({hostname:device.hostname,cpu:device.cpu,memory:device.memory,cpuTime:device.time,memoryTime:device.time});
+            }
+        });
+        count.maxUse.devices = maxDevices;
+        count.maxUse.room =  maxRoom; //commonUtils.getMaxValueInObjArr(maxs,"room");
+        count.maxUse.user=  maxUser;//commonUtils.getMaxValueInObjArr(maxs,"user");
+        count.maxUse.media= maxMedia; //commonUtils.getMaxValueInObjArr(maxs,"media");
+        count.maxUse.roomTime =  maxRoomTime;
+        count.maxUse.userTime =  maxUserTime;
+        count.maxUse.mediaTime =  maxMediaTime;
+
     }catch (e) {
         console.log("countInfo "+ e.toString());
     }

@@ -11,7 +11,7 @@ rimpMangeServer.listen(port);
 rimpMangeServer.on('error', onError);
 rimpMangeServer.on('listening', onListening);
 
-var sysLog = require("./routes/LogManage/LogServer");
+var sysLog = require("./SocketIo/SocketIoServer");
 sysLog.startLogModule(rimpMangeServer);
 
 function normalizePort(val) {

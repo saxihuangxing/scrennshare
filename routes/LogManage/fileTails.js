@@ -5,7 +5,7 @@ var fs = require('fs');
 //const filename = '/home/jackyang/RimpManage/routes/LogManage/log.txt';
 
 //if (!fs.existsSync(filename)) fs.writeFileSync(filename, "");
-var sysLog = require("./LogServer");
+var sysLog = require("../../SocketIo/SocketIoServer");
 let callback = sysLog.sendNewLog;
 
 function startTail(filename,type)

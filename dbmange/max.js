@@ -2,8 +2,11 @@ var mongoose = require('./db.js'),
     Schema = mongoose.Schema;
 
 var MaxSchema = new Schema({
-    cpu : { type: Number },
-    memory : { type: Number },
+    devices:[{
+        hostname:{type: String},
+        cpu : { type: Number },
+        memory : { type: Number },
+    }],
     room : { type: Number },
     user : { type: Number },
     media: {type:Number},
