@@ -1,7 +1,11 @@
 var mongoose = require('mongoose');
 var config = require("../config/config");
 let    DB_URL = config.dbUrl + 'rimp';
-
+const MongoClient = require("mongodb").MongoClient;
+/*MongoClient.connect(DB_URL, { useNewUrlParser: true }, function(err, db) {
+    if (err) throw err;
+    db.close();
+});*/
 /**
  * 连接
  */
