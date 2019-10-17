@@ -35,7 +35,7 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-/*app.use(function (req, res, next) {
+app.use(function (req, res, next) {
     const currPath = req.url;
     if (currPath == "/user/doLogin"  || currPath == "/user/logout" ||
         currPath == "/mediaInfo/report" ||
@@ -52,7 +52,7 @@ app.use(express.static(path.join(__dirname, 'public')));
             res.end(`{"code":"403","reson":"Not authorized."}`);
         }
     }
-});*/
+});
 
 app.use(logger('dev'));
 app.use(express.json());

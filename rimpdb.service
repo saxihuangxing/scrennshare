@@ -6,9 +6,10 @@ Documentation=https://docs.mongodb.org/manual
 [Service]
 User=mongodb
 Group=mongodb
-PermissionsStartOnly=true
+PermissionsStartOnly=truec
 #ExecStartPre=/usr/share/meteor/bundle/mongod_start_pre.sh
-ExecStart=/usr/bin/mongod  --bind_ip 127.0.0.1 --port 8889 --dbpath /usr/local/bigbluebutton/rimpmanage/manage/db --oplogSize 8 --noauth
+#ExecStart=/usr/bin/mongod  --bind_ip 127.0.0.1 --port 8889 --dbpath /usr/local/bigbluebutton/rimpmanage/manage/db --oplogSize 8 --noauth --replSet rs0
+ExecStart=/usr/bin/mongod --config /usr/local/bigbluebutton/rimpmanage/manage/mongo.conf --oplogSize 8  --noauth --nojournal
 #PIDFile=/var/run/mongodb/mongod.pid
 
 # file size

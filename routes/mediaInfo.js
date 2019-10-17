@@ -99,10 +99,12 @@ router.updateCount  = async (event) =>{
         maxUse.size = size;
     }
     hosts = event.hosts;
-    hosts.forEach(host=>{
-        host.videoLimit = event.videoLimit;
-        host.audioLimit = event.audioLimit;
-    })
+    if(hosts !== undefined && hosts.constructor === Array){
+        hosts.forEach(host=>{
+            host.videoLimit = event.videoLimit;
+            host.audioLimit = event.audioLimit;
+        })
+    }
 
     // mediaStatusDb.add(JSON.parse(event));
 }
