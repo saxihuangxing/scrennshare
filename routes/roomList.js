@@ -59,6 +59,9 @@ const saveMeetingsInfo = (json)=>{
             }
             let allUser = 0;
             roomsInfo.forEach(room =>{
+                if(room.attendees === undefined){
+                    return;
+                }
                 let users = CommonUtil.tranObjToArr(room.attendees.attendee);
                 if(users === undefined){
                     return;

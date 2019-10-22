@@ -19,6 +19,9 @@ const updateMediaInfo = async (mediaInfo) => {
         for(let i = 0;i<roomsInfo.length;i++){
             if (roomsInfo[i].voiceBridge.toString() === mediaInfo.voiceBridge) {
                 mediaInfo.meetingName = roomsInfo[i].meetingName;
+                if(roomsInfo[i].attendees === undefined){
+                    return;
+                }
                 let users = CommonUtil.tranObjToArr(roomsInfo[i].attendees.attendee);
                 for(let j = 0;j< users.length;j++) {
                     if (users[j].userID === mediaInfo.userId) {
