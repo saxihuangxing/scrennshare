@@ -8,14 +8,11 @@ var CommonUtil = require("../utils/commonUtil");
 var dbManage = require("../dbmange/manage");
 let  mediaInfos = [];
 var roomList = require('./roomList');
-const deviceInfo = require('./deviceInfo');
+var serverInfo = require('../utils/serverInfo');
 const mediaStatusDb = require("../dbmange/operator")('mediaStatus');
 /* GET users listing. */
 
-const updateMediaInfo = (mediaInfo) => {
-    /*    dbManage.findData(config.roomDbName, query, (newMediaInfos) => {
-
-        });*/
+const updateMediaInfo = async (mediaInfo) => {
     mediaInfo = JSON.parse(mediaInfo);
     if(roomList.roomsInfo != undefined){
         const roomsInfo = roomList.roomsInfo;
@@ -37,25 +34,38 @@ const updateMediaInfo = (mediaInfo) => {
         }
     }
 
-    //dbManage.addData("mediaInfo",[mediaInfo]);
+
+
     for(let i = 0;i<mediaInfos.length;i++ ){
         if(mediaInfos[i].voiceBridge === mediaInfo.voiceBridge
             && mediaInfos[i].userId === mediaInfo.userId
             && mediaInfos[i].mediaId === mediaInfo.mediaId
             && mediaInfos[i].mediaType === mediaInfo.mediaType
         ){
-            mediaInfos[i] = mediaInfo;
-          //  mediaInfos[i].time = mediaInfo.time;
-            //  mediaInfos[i].statsMap.push(mediaInfo.statsMap);
-         //   mediaInfos[i].statsMap = mediaInfo.statsMap;
+            Object.assign(mediaInfos[i],mediaInfo);
             debug(`mediaInfos report update  mediaInfo map for user ${mediaInfos[i].userId}`);
+            saveMediaStats(mediaInfo);
             return;
         }
     }
-    mediaInfo.statsMap = mediaInfo.statsMap;
-    // mediaInfo.statsMap = [mediaInfo.statsMap];
+
     debug("mediaInfos report push new mediaInfo");
+    saveMediaStats(mediaInfo);
     mediaInfos.push(mediaInfo);
+}
+
+async  function saveMediaStats(mediaInfo){
+    if(mediaInfo.saveTime !== undefined && (Date.now() - mediaInfo.saveTime) < config.dbSaveInterval.mediaStatsDb){
+        return;
+    }
+    let roomId =  serverInfo.getMeetingIdByVoiceBridge(mediaInfo.voiceBridge);
+    let param = {roomId,"userId": mediaInfo.userId,"selfUserId": mediaInfo.selfUserId,"mediaId":mediaInfo.mediaId};
+    let mediaStatus =  await  mediaStatusDb.findOnePromise(param);
+    if(mediaStatus !== undefined){
+        mediaStatus.statsmaps.push(mediaInfo.statsMap);
+        mediaStatus.save();
+        mediaInfo.saveTime = Date.now();
+    }
 }
 
 router.updateMediaInfo = updateMediaInfo;
@@ -64,15 +74,17 @@ router.updateStatus  = async (event) =>{
     if(typeof event === 'string') {
         event = JSON.parse(event);
     }
-   const {status,mediaId,roomId,time,shared} = event;
-    let obj = {mediaId,roomId,shared};
+   const {status,mediaId,time,shared,userId,userSelfId} = event;
+    let {roomId} = event;
+     roomId =  serverInfo.getMeetingIdByVoiceBridge(roomId);
+    let obj = {mediaId,roomId,shared,userId,userSelfId};
    if(status === "start"){
        obj.info = {startTime:time,status:"started"};
        mediaStatusDb.add(obj);
    }else if(status === "end"){
        let res =  await  mediaStatusDb.findOnePromise(obj);
        if(res === undefined){
-           console.err("updateStatus err: res" + res );
+           console.error("updateStatus err: res" + res );
            return;
        }
        res.info.status = "end";
@@ -132,8 +144,8 @@ router.post('/getMediaInfo', function(req, res, next) {
     const newMediaInfos = [];
     try {
         const query = {};
-        if(typeof(search.voiceBridge) == "string"){
-            query.voiceBridge = search.voiceBridge;
+        if(typeof(search.meetId) == "string"){
+            query.meetId = search.meetId;
         }
 
         if(typeof(search.userId) == "string"){

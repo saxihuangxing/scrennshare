@@ -7,11 +7,17 @@ const fxp = require("fast-xml-parser");
 const CommonUtil = require("../utils/commonUtil");
 var router = express.Router();
 var debug = require('debug')('rimp:server');
+const historyRoomDb = require("../dbmange/operator")('historyRoom');
 
 let updateTime = 0;
 const options = {
     url:  checksum(config.serverUrl+config.api_getMeetings),
 };
+
+router.get('/historyRoomList',async function(req, res, next) {
+   let meetings = await historyRoomDb.findPromise({status:"end"});
+    res.send(meetings);
+});
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -51,6 +57,9 @@ const saveMeetingsInfo = (json)=>{
             let allUser = 0;
             router.roomsInfo.forEach(room =>{
                 let users = CommonUtil.tranObjToArr(room.attendees.attendee);
+                if(users === undefined){
+                    return;
+                }
                 allUser += users.length;
             })
             if(allUser > maxUse.user){

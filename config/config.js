@@ -26,6 +26,7 @@ config.dbSaveTime = {
 
 config.dbSaveInterval = {
     "maxDb":oneSecondMs*20,
+    "mediaStatsDb":oneSecondMs*60,
 }
 
 // BigBlueButton configs
@@ -89,7 +90,7 @@ config.processCommand = {
     "sfu_process":"process.js",
     "sfu_video":"VideoProcess.js",
     "sfu_screenshare":"ScreenshareProcess",
-    "html5":"/usr/share/node-v8.15.1-linux-x64/bin/node main.js",
+    "html5":"/usr/share/node-v8.15.1-linux-x64/bin/node"+ "-"+"main.js" ,
     "RMD":"kurento-media-server",
     "nginx":"/usr/sbin/nginx",
     "mongod":"/usr/bin/mongod",
@@ -99,6 +100,11 @@ config.processCommand = {
 
 config.processEevnt = {
     "restart":"restart",
+}
+
+config.log = {
+    "filename": "/var/log/rimpManage/rimpManage.log",
+    "level": "verbose"
 }
 
 module.exports =  config

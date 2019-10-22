@@ -3,7 +3,7 @@ var router = express.Router();
 var fs = require('fs');
 var url = require('url');
 var debug = require('debug')('rimp:server');
-const db = require("../dbmange/operator")('process');
+const processDb = require("../dbmange/operator")('process');
 const maxDb = require("../dbmange/operator")('max');
 var osUtils = require("os-utils");
 var config = require("../config/config");
@@ -13,35 +13,10 @@ let roomList = require("./roomList");
 let mediaInfos = require("./mediaInfo");
 var commonUtils = require("../utils/commonUtil");
 var getDevice = require("../utils/fetchDeviceInfo");
+const socketServer = require("../SocketIo/SocketIoServer");
+const Logger = require('../utils/Logger');
 /* GET users listing. */
 let sysinfos = [];
-
-router.get('/', function (req, res, next) {
-        res.send(JSON.stringify(sysinfos));
-});
-
-
-//let currCPU = 0;
-
-let os = require('os');
-
-//过虑掉字符串首尾格式，替换字符串中的多个空格为一个空格
-function trim(s) {
-    return s.replace(/(^\s*)|(\s*$)/g, '').replace(/\s+/g, ' ');
-}
-
-
-let processCounts = {
-    "apps":{"curPid":null,"count":0},
-    "web":{"curPid":null,"count":0},
-    "sfu_process":{"curPid":null,"count":0},
-    "html5":{"curPid":null,"count":0},
-    "RMD":{"curPid":null,"count":0},
-    "nginx":{"curPid":null,"count":0},
-    "redis":{"curPid":null,"count":0},
-  //  "rimpManage":{"curPid":null,"count":0},
-};
-
 let countApp = [
     "apps",
     "web",
@@ -52,16 +27,76 @@ let countApp = [
     "redis",
     //  "rimpManage":{"curPid":null,"count":0},
 ];
+let processCounts = {
+    "apps":{"curPid":null,"count":0},
+    "web":{"curPid":null,"count":0},
+    "sfu_process":{"curPid":null,"count":0},
+    "html5":{"curPid":null,"count":0},
+    "RMD":{"curPid":null,"count":0},
+    "nginx":{"curPid":null,"count":0},
+    "redis":{"curPid":null,"count":0},
+    //  "rimpManage":{"curPid":null,"count":0},
+};
 
-let maxUse = {
-    "cpu":0,
-    "memory":0,
+
+
+router.post('/processesRestartInfo',function(req,res,next){
+/*    const param = req.body;
+    const hostname = param.hostname;
+    let sysInfo = commonUtils.getSpecialValueInObjArr(sysinfos,"hostname",hostname);
+    if(sysInfo === undefined){
+        Logger.error("  [deviceInfo] getProcessesRestartInfo can't find  " + hostname);
+        res.send({err:"can't find " + hostname + " info"});
+        return;
+    }
+    processRestart = {};
+    countApp.forEach(async (app) =>{
+        if(sysInfo.rimpProcessArr.indexOf(app) < 0){
+            return;
+        }
+        processRestart[app] = await  processDb.count({hostname:hostname,name:app}); //processCounts[key].count;
+    });
+    res.send(JSON.stringify(processRestart));*/
+    res.send("interface todo....");
+});
+router.get('/', function (req, res, next) {
+        res.send(JSON.stringify(sysinfos));
+});
+
+function getProcessesRestartInfo(query){
+   return new Promise((resolve,reject)=>{
+       processRestart = {};
+       let promiseArr = [];
+       sysinfos.forEach(sysinfo=> {
+           const hostname = sysinfo.hostname;
+           processRestart[hostname] = {};
+           let processNames =  sysinfo.rimpProcessArr.map(process=>{
+               return process.name;
+           });
+           countApp.forEach((app)=>{
+               if (processNames.indexOf(app) < 0) {
+                   return;
+               }
+               promiseArr.push(processDb.count(Object.assign({hostname: hostname, name: app},query)).then((num)=>{
+                   processRestart[hostname][app] = num;
+               }));
+           });
+
+           /*countApp.forEach(async (app) => {
+               if (processNames.indexOf(app) < 0) {
+                   return;
+               }
+               let count  = await processDb.count({hostname: hostname, name: app}); //processCounts[key].count;
+               processRestart[hostname][app] = count;
+           });*/
+       });
+       Promise.all(promiseArr).then(resolve(processRestart));
+   }) ;
+
 }
-router.countApp = countApp;
-router.processCounts = processCounts;
-router.maxUse = maxUse;
 
-function updteProcess(process,eProcessArr){
+
+function updteProcess(hostname,process,eProcessArr){
     let i = 0;
     for(;i<eProcessArr.length;i++){
         if(eProcessArr[i].name === process.name){
@@ -76,10 +111,11 @@ function updteProcess(process,eProcessArr){
                 obj.restartTime++;
 
                 let event = {};
+                event.hostname = hostname;
                 event.time = Date.now();
                 event.name = process.name;
                 event.event = config.processEevnt.restart;
-                db.add(event);
+                processDb.add(event);
             }
         }
         Object.assign(obj,process);
@@ -101,8 +137,6 @@ function saveMaxUse(){
         sysinfo.maxUse.memory = 0;
     });
     maxDb.add(param);
-    maxUse.cpu = 0;
-    maxUse.memory = 0;
     roomList.maxUse.room = 0;
     roomList.maxUse.user = 0;
     mediaInfos.maxUse.size = 0;
@@ -110,96 +144,6 @@ function saveMaxUse(){
 setTimeout(saveMaxUse,1000*5);
 setInterval(saveMaxUse,config.dbSaveInterval.maxDb);
 
-
- /*getDevice = async function () {
-//df --total |grep total
-    var freeMem = os.freemem() / 1073741824;
-    var totalMem = os.totalmem() / 1073741824;
-    var cpuUse = await getCpu();
-    let cpu =  (cpuUse * 100.0).toFixed(2);
-    let memory = ((totalMem - freeMem) / totalMem * 100.0).toFixed(2);
-     sysinfo = {
-        'hostname': os.hostname(),
-        'systemType': os.type(),
-        'release': os.release(),
-        'uptime': os.uptime(),
-        'cpuUsage': cpu+ "%",
-        'loadavg': os.loadavg(),
-        'totalMem': totalMem.toFixed(2) + "G",
-        'freeMem': freeMem.toFixed(2) + "G",
-        'memUsage': memory + "%",
-        'cpus': os.cpus(),
-        'disk': ''
-    };
-     saveMaxUse(cpu,memory);
-    var exec = require('child_process').exec;
-    exec('df --total |grep total',
-        function (error, stdout, stderr) {
-            if (error !== null) {
-                console.log('exec error: ' + error);
-            } else {
-                var tmp = trim(stdout).split(' ');
-                sysinfo.disk = {
-                    total: commonUtils.transKBToG(tmp[1]),
-                    used: commonUtils.transKBToG(tmp[2]),
-                    free: commonUtils.transKBToG(tmp[3])
-                };
-                sysinfo.diskUsage = tmp[4];
-            }
-            exec('ps aux', function (err, stdout, stderr) {
-                if (error !== null) {
-                    console.log('exec error: ' + error);
-                } else {
-                    let processArr = [];
-                    let list = stdout.split(/[\r\n]+/g);
-                    let commond = "";
-                    for (let i = 0; i < list.length; i++) {
-                        var tmp = trim(list[i]).split(' ');
-                        commond = tmp[10];
-                        if (tmp.length > 11) {
-                            for (let i = 11; i < tmp.length; i++) {
-                                commond = commond + "-" + tmp[i];
-                            }
-                        }
-                        for (var key in config.processCommand) {
-                            let process = {};
-                            if ((typeof (commond) === 'string') && commond.indexOf(config.processCommand[key]) !== -1) {
-                                process.name = key;
-                                process.pid = tmp[1];
-                                process.cpu = tmp[2];
-                                process.mem = tmp[3];
-                                process.rss = tmp[5];
-                                process.stat = tmp[7];
-                                process.startTime = tmp[8];
-                                processArr.push(process);
-                                countProcessRestart(process);
-                            }
-                        }
-                        // console.log(tmp[10]);
-                    }
-                    sysinfo.rimpProcessArr = processArr;
-                }
-                sysinfo = [sysinfo];
-              //  if (res != null)
-               //     res.send(JSON.stringify(sysinfo));
-                socket.sendDeviceInfo(JSON.stringify(sysinfo));
-                // console.log(JSON.stringify(sysinfo));
-            });
-
-        });
-};
-
-
-function getCpu(){
-    return new Promise(
-        (resolve,reject) => {
-            osUtils.cpuUsage(function (value) {
-                let currCPU = value;
-                resolve(currCPU);
-            });
-        })
-}
-;*/
 
  function  updateDeviceStatus(sysInfo){
   let i;
@@ -222,7 +166,7 @@ function getCpu(){
               eSysInfo.maxUse.cpu = sysInfo.cpuUsage;
           }
           sysInfo.rimpProcessArr.forEach((process)=>{
-              updteProcess(process,eSysInfo.rimpProcessArr);
+              updteProcess(sysInfo.hostname,process,eSysInfo.rimpProcessArr);
           })
           break;
       }
@@ -234,14 +178,15 @@ function getCpu(){
   }
      socket.sendDeviceInfo(JSON.stringify(sysinfos));
  }
-router.updateDeviceStatus = updateDeviceStatus;
+
+socketServer.addListener("device_info",updateDeviceStatus);
 
 setInterval(async function () {
     let  sysInfo =  await getDevice();
     updateDeviceStatus(sysInfo);
 }, 3000);
 
-router.getHostNameByIp = (ip) =>{
+const getHostNameByIp = (ip) =>{
     for(let i = 0;i<sysinfos.length;i++){
         let sysinfo = sysinfos[i];
         if(sysinfo.ip === ip){
@@ -250,4 +195,9 @@ router.getHostNameByIp = (ip) =>{
     }
     return "unknown";
 };
-module.exports = router;
+const deviceInfo ={
+    getProcessesRestartInfo,
+    getHostNameByIp,
+    router,
+}
+module.exports = deviceInfo;

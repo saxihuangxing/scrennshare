@@ -10,6 +10,7 @@ class SocketIoServer {
             'media_report':[],
             'media_change':[],
             'media_count':[],
+            'device_info':[],
         };
     }
 
@@ -72,8 +73,8 @@ class SocketIoServer {
             });
             socket.on('device_info', function (from, msg) {
                 // console.log('media_count', from, ' saying ', msg);
-                setTimeout(()=>deviceInfo.updateDeviceStatus(msg),0);
-                //  this.callback('media_count',msg);
+               // setTimeout(()=>deviceInfo.updateDeviceStatus(msg),0);
+                socketIoServer.callback('device_info',msg);
             });
             socket.subscribers = [];
             socket.on('subscribe',(type)=>{

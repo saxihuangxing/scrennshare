@@ -4,12 +4,15 @@ var mongoose = require('./db.js'),
 var MediaStatusSchema = new Schema({
     mediaId: {type: String},
     roomId: {type: String},
+    userId: {tpye:String},
+    userSelfId:{type:String},
     shared: {type: Boolean},
     info: {
         status: {type: String},
         startTime: {type: Number},
         endTime: {type: Number},
     },
+    statsmaps:[],
 });
 
 module.exports = mongoose.model('MediaStatus', MediaStatusSchema);

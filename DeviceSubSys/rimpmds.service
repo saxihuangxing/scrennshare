@@ -1,0 +1,14 @@
+[Unit]
+Description=BigBlueButton RIMP Collection Device Info
+
+[Service]
+WorkingDirectory=/usr/local/bigbluebutton/rimpmanage/DeviceSubSys/
+ExecStart=/usr/bin/node server.js
+Restart=always
+SyslogIdentifier=rimp-manage-subsys
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

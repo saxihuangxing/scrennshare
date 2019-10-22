@@ -33,6 +33,10 @@ getDevice =  function () {
             'cpus': os.cpus(),
             'disk': ''
         };
+        if(config.test === true){
+            sysinfo.hostname = "MDS1";
+            sysinfo.ip = "192.168.1.125";
+        }
         var exec = require('child_process').exec;
         exec('df --total |grep total',
             function (error, stdout, stderr) {

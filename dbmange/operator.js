@@ -2,6 +2,7 @@ var Event = require("./event.js");
 var Process = require("./process.js");
 var Max = require("./max.js");
 var MediaStatus = require("./mediaStatus.js");
+var HistoryRoom = require("./historyRoom.js");
 
 class DbOperator {
 
@@ -98,6 +99,9 @@ module.exports = (moduleType) => {
             break;
         case 'mediaStatus':
             dbOperator.Module = MediaStatus;
+            break;
+        case 'historyRoom':
+            dbOperator.Module = HistoryRoom;
             break;
         default:
             dbOperator.Module = Event;

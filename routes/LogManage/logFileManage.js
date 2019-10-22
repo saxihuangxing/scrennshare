@@ -2,6 +2,8 @@ var fs = require('fs');
 const LOG_DIR = '/var/log/';
 const SFU_DIR =  'bbb-webrtc-sfu/';
 const SFU_NAME =  'bbb-webrtc-sfu.log';
+const MANAGE_DIR =  'rimpManage/';
+const MANAGE_NAME =  'rimpManage.log';
 const WEB_DIR = 'bigbluebutton/';
 const WEB_NAME = 'bbb-web';
 const logMonitor  = require("./fileTails");
@@ -15,6 +17,7 @@ const tails = {
     'SFU_SERVER':null,
     'WEB':null,
     'APPS':null,
+    'MANAGE':null,
 }
 
 function isToday(time){
@@ -29,6 +32,8 @@ function isToday(time){
 
 function getFileName(type,time){
     switch (type) {
+        case 'MANAGE':
+            return  LOG_DIR + MANAGE_DIR + MANAGE_NAME + `.${time}`;
         case 'SFU_SERVER':
             return LOG_DIR + SFU_DIR + SFU_NAME + `.${time}`;
         case 'HTML5':
@@ -58,6 +63,7 @@ function getFileName(type,time){
 
 const startWatchFile = () =>{
     tails.SFU_SERVER =  logMonitor.startTail(getFileName('SFU_SERVER',currentDate),'SFU_SERVER');
+    tails.MANAGE  =  logMonitor.startTail(getFileName('MANAGE',currentDate),'MANAGE');
     tails.WEB =  logMonitor.startTail(getFileName('WEB',currentDate),'WEB');
     tails.APPS =  logMonitor.startTail(getFileName('APPS',currentDate),'APPS');
     setInterval(function () {
@@ -78,9 +84,16 @@ const startWatchFile = () =>{
                 tails.APPS.unwatch();
                 tails.APPS = null;
             }
+
+            if(tails.MANAGE != null){
+                tails.MANAGE.unwatch();
+                tails.MANAGE = null;
+            }
+
             tails.SFU_SERVER =  logMonitor.startTail(getFileName('SFU_SERVER',currentDate),'SFU_SERVER');
             tails.WEB =  logMonitor.startTail(getFileName('WEB',currentDate),'WEB');
             tails.APPS =  logMonitor.startTail(getFileName('APPS',currentDate),'APPS');
+            tails.MANAGE =  logMonitor.startTail(getFileName('MANAGE',currentDate),'MANAGE');
         }
     },60*1);
 }

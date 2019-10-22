@@ -2,9 +2,18 @@ var http = require('http');
 var app = require('./app');
 var config = require('./config/config');
 var debug = require('debug')('rimp:rimpMangeServer');
+const Logger = require('./utils/Logger');
 var port = normalizePort(process.env.PORT || config.server.port);
 app.set('port', port);
 
+function uncaughtExceptionHandler(err){
+    if(err && err.code == 'ECONNREFUSED'){
+        //do someting
+    }else{
+       process.exit(1);
+    }
+}
+process.on('uncaughtException', uncaughtExceptionHandler);
 
 var rimpMangeServer = http.createServer(app);
 rimpMangeServer.listen(port);
@@ -64,4 +73,5 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     debug('Listening on ' + bind);
+    Logger.info('Listening on ' + bind);
 }

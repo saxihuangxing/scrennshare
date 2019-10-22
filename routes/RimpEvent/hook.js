@@ -1,6 +1,9 @@
 const redis = require("redis");
 var debug = require('debug')('rimp:server');
 const db = require("../../dbmange/operator")('event');
+const historyRoomDb = require("../../dbmange/operator")('historyRoom');
+const Logger = require('../../utils/Logger');
+
 let channels = {
     mainChannel: 'from-akka-apps-redis-channel',
     rapChannel: 'from-bbb-web-redis-channel',
@@ -14,7 +17,6 @@ let channels = {
 module.exports = class Hook {
 
     constructor() {
-        this.events = [];
         const options = {
             host : "127.0.0.1",
             port : "6379"
@@ -25,15 +27,21 @@ module.exports = class Hook {
             debug("subscribed to " + channel);
         });
 
+        this.redisClient.on("error", function (err) {
+            Logger.error("Error " + err);
+        });
+
+
         for (let k in channels) {
             const channel = channels[k];
             this.redisClient.psubscribe(channel);
         }
+        this.meetings  = [];
     }
 
 
     start() {
-        this.redisClient.on("pmessage", (pattern, channel, message) => {
+        this.redisClient.on("pmessage", async (pattern, channel, message) => {
             debug(message);
             let raw;
             try {
@@ -44,13 +52,33 @@ module.exports = class Hook {
                     return;
                 }
                 event.time = Date.now();
-                event.meetId = raw.core.header.meetingId;
+                event.meetId = raw.core.header.meetingId || raw.core.body.meetingId;
                 if(raw.core.header.userId != undefined){
                     event.userId = raw.core.header.userId;
                 }
-                db.add(event);
-              //  this.events.push(event);
+                if(event.type === "MeetingCreatedEvtMsg"){
+                    this.meetings.push(raw.core.body.props);
+                    event.meetId = raw.core.body.props.meetingProp.intId;
+                    let meetName = raw.core.body.props.meetingProp.extId;
+                    let param = {"meetId":event.meetId,meetName:meetName,"createTime":event.time,status:"running"};
+                    historyRoomDb.add(param);
 
+                }
+                else if(event.type === "MeetingDestroyedEvtMsg"){
+                    for(let i = 0;i<this.meetings.length;i++){
+                        if(this.meetings[i].meetingProp.intId === event.meetId){
+                                this.meetings.splice(i,1);
+                                break;
+                        }
+                    }
+                    let meeting =  await historyRoomDb.findOnePromise({"meetId":event.meetId});
+                    if(meeting != null && meeting !== undefined) {
+                        meeting.endTime = event.time;
+                        meeting.status = "end";
+                        meeting.save();
+                    }
+                }
+                db.add(event);
             } catch (e) {
                 debug("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e.message);
             }
@@ -59,13 +87,6 @@ module.exports = class Hook {
     };
 
     getEventBymeetId(meetId,callback){
-/*       let newEvents;
-       this.events.forEach(event=>{
-           if(event.meetId == meetId){
-               newEvents.push(event);
-           }
-       });
-        newEvents = */
        db.find({meetId},null,callback);
     }
 

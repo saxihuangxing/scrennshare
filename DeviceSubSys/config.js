@@ -15,4 +15,6 @@ config.processCommand = {
     "rimpManage": "rimpMangeServer",
 }
 config.reportInterval = 1000*2;
+config.test = true; 
 module.exports = config;
+
