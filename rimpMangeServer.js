@@ -7,6 +7,7 @@ var port = normalizePort(process.env.PORT || config.server.port);
 app.set('port', port);
 
 function uncaughtExceptionHandler(err){
+    console.log("hxtest uncaughtExceptionHandler " + err);
     if(err && err.code == 'ECONNREFUSED'){
         //do someting
     }else{

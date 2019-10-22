@@ -10,6 +10,7 @@ var debug = require('debug')('rimp:server');
 const historyRoomDb = require("../dbmange/operator")('historyRoom');
 
 let updateTime = 0;
+roomsInfo = [];
 const options = {
     url:  checksum(config.serverUrl+config.api_getMeetings),
 };
@@ -40,22 +41,24 @@ let maxUse = {
     "user":0,
 }
 
-router.maxUse = maxUse;
+//router.maxUse = maxUse;
 
 const saveMeetingsInfo = (json)=>{
     data = json.response;
     if (data.returncode === "SUCCESS") {
         if(typeof(data.meetings.meeting) == 'object'){
-            if(data.meetings.meeting.constructor != Array) {
-                router.roomsInfo = [data.meetings.meeting];
+         /*   if(data.meetings.meeting.constructor != Array) {
+                roomsInfo = [data.meetings.meeting];
             }else{
-                router.roomsInfo = meetingsData;
-            }
-            if(router.roomsInfo.length > maxUse.room){
-                maxUse.room = router.roomsInfo.length;
+                roomsInfo = meetingsData;
+            }*/
+            roomsInfo.length = 0;
+            roomsInfo.push(data.meetings.meeting);
+            if(roomsInfo.length > maxUse.room){
+                maxUse.room = roomsInfo.length;
             }
             let allUser = 0;
-            router.roomsInfo.forEach(room =>{
+            roomsInfo.forEach(room =>{
                 let users = CommonUtil.tranObjToArr(room.attendees.attendee);
                 if(users === undefined){
                     return;
@@ -94,4 +97,4 @@ setInterval(function () {
 
 
 
-module.exports = router;
+module.exports = {router,roomsInfo,maxUse};

@@ -34,8 +34,6 @@ const updateMediaInfo = async (mediaInfo) => {
         }
     }
 
-
-
     for(let i = 0;i<mediaInfos.length;i++ ){
         if(mediaInfos[i].voiceBridge === mediaInfo.voiceBridge
             && mediaInfos[i].userId === mediaInfo.userId
@@ -44,7 +42,7 @@ const updateMediaInfo = async (mediaInfo) => {
         ){
             Object.assign(mediaInfos[i],mediaInfo);
             debug(`mediaInfos report update  mediaInfo map for user ${mediaInfos[i].userId}`);
-            saveMediaStats(mediaInfo);
+            saveMediaStats(mediaInfos[i]);
             return;
         }
     }
@@ -55,13 +53,14 @@ const updateMediaInfo = async (mediaInfo) => {
 }
 
 async  function saveMediaStats(mediaInfo){
-    if(mediaInfo.saveTime !== undefined && (Date.now() - mediaInfo.saveTime) < config.dbSaveInterval.mediaStatsDb){
+    console.log("hxtest mediaInfo.saveTime = " + mediaInfo.saveTime + "(Date.now() - mediaInfo.saveTime)  =  " + (Date.now() - mediaInfo.saveTime) );
+    if(mediaInfo.saveTime !== undefined && ((Date.now() - mediaInfo.saveTime) < config.dbSaveInterval.mediaStatsDb)){
         return;
     }
     let roomId =  serverInfo.getMeetingIdByVoiceBridge(mediaInfo.voiceBridge);
-    let param = {roomId,"userId": mediaInfo.userId,"selfUserId": mediaInfo.selfUserId,"mediaId":mediaInfo.mediaId};
+    let param = {roomId,"userId": mediaInfo.userId,"userSelfId": mediaInfo.selfUserId,"mediaId":mediaInfo.mediaId};
     let mediaStatus =  await  mediaStatusDb.findOnePromise(param);
-    if(mediaStatus !== undefined){
+    if(mediaStatus !== undefined && mediaStatus !== null){
         mediaStatus.statsmaps.push(mediaInfo.statsMap);
         mediaStatus.save();
         mediaInfo.saveTime = Date.now();
@@ -134,7 +133,7 @@ router.post('/report', function(req, res, next) {
         res.end();
     });
 
-router.post('/getMediaInfo', function(req, res, next) {
+router.post('/getMediaInfo', async function(req, res, next) {
     const search = req.body;
     debug(`mediaInfos getMediaInfo voicebridge:${ req.query.voiceBridge}`);
 /*    search.voiceBridge = req.body.voiceBridge;
@@ -144,8 +143,8 @@ router.post('/getMediaInfo', function(req, res, next) {
     const newMediaInfos = [];
     try {
         const query = {};
-        if(typeof(search.meetId) == "string"){
-            query.meetId = search.meetId;
+        if(typeof(search.roomId) == "string"){
+            query.roomId = search.roomId;
         }
 
         if(typeof(search.userId) == "string"){
@@ -194,11 +193,12 @@ router.post('/getMediaInfo', function(req, res, next) {
             }
         }
 
-        dbManage.findData("mediaInfo", query, (newMediaInfos) => {
-            res.write(JSON.stringify(newMediaInfos));
+      //  dbManage.findData("mediaInfo", query, (newMediaInfos) => {
+            let medias = await mediaStatusDb.findPromise(query);
+            res.write(JSON.stringify(medias));
             //  发送响应数据
             res.end();
-        });
+        //});
     }catch (e) {
         res.write(e.toString());
         res.end();

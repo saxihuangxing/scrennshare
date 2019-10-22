@@ -4,7 +4,7 @@ var mongoose = require('./db.js'),
 var MediaStatusSchema = new Schema({
     mediaId: {type: String},
     roomId: {type: String},
-    userId: {tpye:String},
+    userId: {type:String},
     userSelfId:{type:String},
     shared: {type: Boolean},
     info: {

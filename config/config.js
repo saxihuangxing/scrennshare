@@ -26,7 +26,7 @@ config.dbSaveTime = {
 
 config.dbSaveInterval = {
     "maxDb":oneSecondMs*20,
-    "mediaStatsDb":oneSecondMs*60,
+    "mediaStatsDb":oneSecondMs*60*10,
 }
 
 // BigBlueButton configs
