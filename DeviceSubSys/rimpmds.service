@@ -2,7 +2,7 @@
 Description=BigBlueButton RIMP Collection Device Info
 
 [Service]
-WorkingDirectory=/usr/local/bigbluebutton/rimpmanage/DeviceSubSys/
+WorkingDirectory=/usr/local/rimpmanage/DeviceSubSys/
 ExecStart=/usr/bin/node server.js
 Restart=always
 SyslogIdentifier=rimp-manage-subsys

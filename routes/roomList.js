@@ -53,7 +53,11 @@ const saveMeetingsInfo = (json)=>{
                 roomsInfo = meetingsData;
             }*/
             roomsInfo.length = 0;
-            roomsInfo.push(data.meetings.meeting);
+
+            if (data.meetings.meeting.constructor === Array)
+                data.meetings.meeting.forEach((room) => roomsInfo.push(room))
+            else
+                roomsInfo.push(data.meetings.meeting)
             if(roomsInfo.length > maxUse.room){
                 maxUse.room = roomsInfo.length;
             }

@@ -11,6 +11,8 @@ class SocketIoServer {
             'media_change':[],
             'media_count':[],
             'device_info':[],
+            'onGetMDSFileNames':[],
+            'onGetMDSFileContent':[],
         };
     }
 
@@ -22,11 +24,19 @@ class SocketIoServer {
         }
     }
 
+    removeListener(type){
+        let keys = Object.keys(this.listeners);
+        let i = keys.indexOf(type);
+        if(i > -1){
+            this.listeners[keys[i]] = [];
+        }
+    }
+
     removeListener(type,listener){
         let keys = Object.keys(this.listeners);
         let i = keys.indexOf(type);
         if(i > -1){
-            this.listeners[keys[i]].remove(listener);
+            this.listeners[keys[i]].splice(this.listeners[keys[i]].indexOf(listener),1);
         }
     }
 
@@ -51,11 +61,25 @@ class SocketIoServer {
                 for (var key in clients) {
                     if (key == socket.id) {
                         clientCount--;
-                        delete clients.key;
+                        delete clients[key];
                         console.log("clientCount = " + clientCount);
                     }
                 }
             });
+
+            socket.on('setTypeAndIp', function (from, msg) {
+                socket.ip = msg.ip;
+                socket.type = msg.type;
+                if(socket.type === "MDS") {
+                    socket.on("onGetMDSFileNames", function (form, msg) {
+                        socketIoServer.callback('onGetMDSFileNames', msg);
+                    });
+                    socket.on("onGetMDSFileContent", function (form, msg) {
+                        socketIoServer.callback('onGetMDSFileContent', msg);
+                    });
+                }
+            });
+
             socket.on('media_report', function (from, msg) {
               //  console.log('MSG', from, ' saying ', msg);
                setTimeout(()=>mediaRouter.updateMediaInfo(msg),0);
@@ -110,6 +134,18 @@ class SocketIoServer {
             }
         }
     }
+
+    findSocketByIp(ip){
+        for (let key in clients) {
+            let socket = clients[key];
+            if(socket.ip === ip)
+            {
+                return socket;
+            }
+        }
+        return null ;
+    }
+
 }
 
 const socketIoServer = new SocketIoServer();
