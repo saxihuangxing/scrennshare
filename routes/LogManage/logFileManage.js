@@ -107,12 +107,12 @@ const startWatchFile = () =>{
  const getLogFileContent = (option,callback)=> {
      const {type,time,filename,hostip} = option;
 
-     if(hostip === localIp) {
+     if(hostip === undefined || hostip === localIp) {
          const fileName = getFileName(type, time, filename);
          fs.readFile(fileName, callback);
      }else{
          let socket =  socketServer.findSocketByIp(hostip);
-         if(socket === null){
+         if(socket === undefined || socket === null){
              Logger.error("can't find socket by ip " + hostip);
              callback("");
          }

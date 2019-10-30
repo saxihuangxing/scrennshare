@@ -27,6 +27,7 @@ router.post('/processRestartEvent', async function (req, res, next) {
 
 /* GET users listing. */
 router.post('/', async function (req, res, next) {
+    console.log(`hxtest post countinfo `);
     //let meetId = req.query.meetId;
     let param = req.body;
     let query = commonUtils.getQueryByTimeRange(param.timeRange);
@@ -42,7 +43,6 @@ router.post('/', async function (req, res, next) {
         let timeRange = commonUtils.getTimeRange(param.timeRange);
         medias.forEach((media) => {
             let runTime = 0, startTime = 0, endTime = 0;
-            ;
             if (media.info.status !== "end") {
                 media.info.endTime = Date.now();
             }
@@ -135,6 +135,7 @@ router.post('/', async function (req, res, next) {
     }
     res.write(JSON.stringify(count));
     res.end();
+    console.log("deal countInfo end");
 });
 
 module.exports = router;

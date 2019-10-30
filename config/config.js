@@ -86,7 +86,7 @@ config.api = {};
 config.api.responses = {};
 config.processCommand = {
     "apps":"bbb-apps-akka",
-    "web":"bbb-web",
+    "web":"/usr/share/bbb-web",
     "sfu_process":"process.js",
     "sfu_video":"VideoProcess.js",
     "sfu_screenshare":"ScreenshareProcess",

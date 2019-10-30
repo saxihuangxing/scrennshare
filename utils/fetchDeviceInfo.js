@@ -63,7 +63,7 @@ getDevice =  function () {
                                 }
                             }
                             if(commond !== undefined && commond.indexOf("main.js") >= 0){
-                                console.log("command = " + commond);
+                                //console.log("command = " + commond);
                             }
                             for (var key in config.processCommand) {
                                 let process = {};

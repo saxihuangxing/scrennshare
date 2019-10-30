@@ -23,7 +23,6 @@ router.post('/', function(req, res, next) {
     let option = req.body;
     debug(`post loginfo ${option.type} ${option.time}`);
     var a = Date.now();
-    console.log("a ========= " + a);
     logFileMange.getContent(option,function (err, data) {
         console.log("now ========= " + Date.now() );
         var b = Date.now() - a;

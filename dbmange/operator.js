@@ -7,14 +7,13 @@ var HistoryRoom = require("./historyRoom.js");
 class DbOperator {
 
     add(params) {
-        console.log("dbadd:" + JSON.stringify(params) + "  contruct = " + this.Module.constructor);
+        //console.log("dbadd:" + JSON.stringify(params) + "  contruct = " + this.Module.constructor);
         var module = new this.Module(params);
         module.save(function (err, res) {
-
             if (err) {
                 console.log("Error:" + err);
             } else {
-                console.log("Res:" + res);
+                //console.log("Res:" + res);
             }
         });
     }
@@ -64,7 +63,7 @@ class DbOperator {
                 console.log("Error:" + err);
             } else {
                 debug(`db remove ${res}`);
-                console.log("Res:" + res);
+                //console.log("Res:" + res);
             }
         });
     }

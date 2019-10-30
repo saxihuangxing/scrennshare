@@ -56,7 +56,7 @@ const updateMediaInfo = async (mediaInfo) => {
 }
 
 async  function saveMediaStats(mediaInfo){
-    console.log("hxtest mediaInfo.saveTime = " + mediaInfo.saveTime + "(Date.now() - mediaInfo.saveTime)  =  " + (Date.now() - mediaInfo.saveTime) );
+   // console.log("hxtest mediaInfo.saveTime = " + mediaInfo.saveTime + "(Date.now() - mediaInfo.saveTime)  =  " + (Date.now() - mediaInfo.saveTime) );
     if(mediaInfo.saveTime !== undefined && ((Date.now() - mediaInfo.saveTime) < config.dbSaveInterval.mediaStatsDb)){
         return;
     }
