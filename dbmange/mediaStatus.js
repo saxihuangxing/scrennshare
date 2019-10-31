@@ -7,6 +7,9 @@ var MediaStatusSchema = new Schema({
     userId: {type:String},
     userSelfId:{type:String},
     shared: {type: Boolean},
+    meetingName: {type:String},
+    userName:{type:String},
+    selfUserName: {type: String},
     info: {
         status: {type: String},
         startTime: {type: Number},

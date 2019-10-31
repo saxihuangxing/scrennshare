@@ -1,19 +1,9 @@
 var express = require('express');
-const Hook =  require('./hook');
+const hook =  require('./hook').hook;
 var commonUtils = require("./../../utils/commonUtil");
 
 var router = express.Router();
 var debug = require('debug')('rimp:server');
-
-let hook;
-let meetings
-try {
-    hook = new Hook();
-    hook.start();
-    meetings = hook.meetings;
-}catch (e) {
-    debug(e);
-}
 
 
 /* GET users listing. */
@@ -24,9 +14,6 @@ router.get('/', function(req, res, next) {
             console.log("getEventBymeetId" + error.toString());
             res.write(JSON.stringify([]));
         }else {
-/*            events.forEach((event)=>{
-                event.fakeType = commonUtils.mappedEventMsg(event.type);
-            })*/
             res.write(JSON.stringify(events));
         }
          res.end();
@@ -34,7 +21,7 @@ router.get('/', function(req, res, next) {
 
 });
 
-module.exports = {router,meetings};
+module.exports = {router};
 
 
 
