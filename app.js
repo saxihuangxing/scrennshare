@@ -38,6 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 
+/*
 app.use(function (req, res, next) {
     const currPath = req.url;
     if (currPath == "/user/doLogin"  || currPath == "/user/logout" ||
@@ -56,6 +57,7 @@ app.use(function (req, res, next) {
         }
     }
 });
+*/
 
 app.use(logger('dev'));
 app.use(express.json());

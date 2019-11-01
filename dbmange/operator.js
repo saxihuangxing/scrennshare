@@ -3,6 +3,7 @@ var Process = require("./process.js");
 var Max = require("./max.js");
 var MediaStatus = require("./mediaStatus.js");
 var HistoryRoom = require("./historyRoom.js");
+var Logger = require("../utils/Logger");
 
 class DbOperator {
 
@@ -60,9 +61,8 @@ class DbOperator {
     remove(query) {
         this.Module.remove(query, function (err, res) {
             if (err) {
-                console.log("Error:" + err);
+                Logger.error(`db remove ${JSON.stringify(err)}`);
             } else {
-                debug(`db remove ${res}`);
                 //console.log("Res:" + res);
             }
         });

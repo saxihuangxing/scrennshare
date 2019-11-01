@@ -1,4 +1,3 @@
-var debug = require('debug')('rimp:server');
 const eventDb = require("../dbmange/operator")('event');
 const processDb = require("../dbmange/operator")('process');
 const maxDb = require("../dbmange/operator")('max');
@@ -10,12 +9,11 @@ const config = require("../config/config");
 
 let interval = null;
 let timeOut = 1000*60*5;
-
 const clearTask = ()=>{
     const queryEventDb = {"time":{$lt: (Date.now()-config.dbSaveTime.eventDb)}};
-    const queryHistoryroomsDb = {"time":{$lt: (Date.now()-config.dbSaveTime.historyroomsDb)}};
+    const queryHistoryroomsDb = {status:"end","endTime":{$lt: (Date.now()-config.dbSaveTime.historyroomsDb)}};
     const queryMaxesDb = {"time":{$lt: (Date.now()-config.dbSaveTime.maxesDb)}};
-    const queryMediastatusesDb = {"time":{$lt: (Date.now()-config.dbSaveTime.mediastatusesDb)}};
+    const queryMediastatusesDb = {"info.status":"end","info.endTime":{$lt: (Date.now()-config.dbSaveTime.mediastatusesDb)}};
     const queryProcessDb = {"time":{$lt: (Date.now()-config.dbSaveTime.processDb)}};
 
     eventDb.remove(queryEventDb);

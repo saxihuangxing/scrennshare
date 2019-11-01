@@ -21,8 +21,11 @@ rimpMangeServer.listen(port);
 rimpMangeServer.on('error', onError);
 rimpMangeServer.on('listening', onListening);
 
-var sysLog = require("./SocketIo/SocketIoServer");
-sysLog.startLogModule(rimpMangeServer);
+const SocketIoServer = require("./SocketIo/SocketIoServer");
+SocketIoServer.startLogModule(rimpMangeServer);
+
+const clearDb = require("./dbmange/clearDb");
+clearDb.start();
 
 function normalizePort(val) {
     var port = parseInt(val, 10);
