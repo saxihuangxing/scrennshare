@@ -35,7 +35,15 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use(function (req, res, next) {
+    const currPath = req.url;
+    console.log("get http req " + currPath);
+    next();
+})
+
+
+/*app.use(function (req, res, next) {
     const currPath = req.url;
     if (currPath == "/user/doLogin"  || currPath == "/user/logout" ||
         currPath == "/mediaInfo/report" ||
@@ -52,7 +60,7 @@ app.use(function (req, res, next) {
             res.end(`{"code":"403","reson":"Not authorized."}`);
         }
     }
-});
+});*/
 
 app.use(logger('dev'));
 app.use(express.json());

@@ -3,7 +3,7 @@ var debug = require('debug')('rimp:server');
 const db = require("../../dbmange/operator")('event');
 const historyRoomDb = require("../../dbmange/operator")('historyRoom');
 const Logger = require('../../utils/Logger');
-
+const config = require('../../config/config');
 
 let channels = {
     mainChannel: 'from-akka-apps-*',
@@ -21,8 +21,8 @@ class Hook {
 
     constructor() {
         const options = {
-            host: "127.0.0.1",
-            port: "6379"
+            host: config.redis.host,
+            port: config.redis.port
         };
         this.redisClient = redis.createClient(options);
 
