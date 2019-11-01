@@ -31,7 +31,7 @@ const getMeetNameByVoiceBridge = (voiceBridge, userId) => {
     if (roomList.roomsInfo != undefined) {
         for (let i = 0; i < roomList.roomsInfo.length; i++) {
             if (roomList.roomsInfo[i].voiceBridge == voiceBridge) {
-                return roomList.roomsInfo[i].meetingID;
+                return roomList.roomsInfo[i].meetingName;
             }
         }
     }
